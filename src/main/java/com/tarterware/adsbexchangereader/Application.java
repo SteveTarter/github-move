@@ -14,9 +14,11 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.client.RestTemplate;
 
 @SpringBootApplication
+@EnableScheduling
 public class Application 
 {
 	private static final Logger log = LoggerFactory.getLogger(Application.class);
@@ -31,6 +33,7 @@ public class Application
     	return restTemplate;
     }
     
+    /*
     @Bean
     public CommandLineRunner run(RestTemplate restTemplate) throws Exception
     {
@@ -47,4 +50,5 @@ public class Application
         	log.info(flightData.toString());
     	};
     }
+    */
 }

@@ -1,4 +1,5 @@
 com/tarterware/adsbexchangereader/Feed.class
 com/tarterware/adsbexchangereader/Application.class
+com/tarterware/adsbexchangereader/ScheduledTasks.class
 com/tarterware/adsbexchangereader/FlightData.class
 com/tarterware/adsbexchangereader/Aircraft.class

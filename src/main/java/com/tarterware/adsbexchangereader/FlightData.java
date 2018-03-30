@@ -16,6 +16,8 @@ public class FlightData {
 	private Long stm;
 	@JsonProperty("acList")
 	private List<Aircraft> acList = new ArrayList<Aircraft>();
+	@JsonProperty("feeds")
+	private List<Feed> feeds = new ArrayList<Feed>();
 	private Integer srcFeed;
 	private Boolean configChanged;
 	
@@ -71,6 +73,14 @@ public class FlightData {
 		this.acList = acList ;
 	}
 	
+	public List<Feed> getFeeds() {
+		return feeds;
+	}
+
+	public void setFeeds(List<Feed> feeds) {
+		this.feeds = feeds;
+	}
+
 	public Integer getSrcFeed() {
 		return srcFeed;
 	}
@@ -96,6 +106,7 @@ public class FlightData {
 				", shtTrlSec=" + shtTrlSec +
 				", stm=" + stm +
 				", acList=" + acList +
+				", feeds=" + feeds +
 				", srcFeed=" + srcFeed +
 				", configChanged=" + configChanged +
 				"}";

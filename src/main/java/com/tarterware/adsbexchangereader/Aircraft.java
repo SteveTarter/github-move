@@ -221,7 +221,7 @@ public class Aircraft {
 				", Type=" + type +
 				", Mdl=" + mdl +
 				", Op=" + op +
-				"}";
+				"}\n";
 	}
 	
 }
