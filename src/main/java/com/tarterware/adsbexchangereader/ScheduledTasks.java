@@ -1,5 +1,7 @@
 package com.tarterware.adsbexchangereader;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,6 +14,8 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -34,6 +38,34 @@ public class ScheduledTasks {
     	return restTemplate;
     }
     
+    @Autowired
+    JdbcTemplate jdbcTemplate;
+    
+    private boolean skipFirst = true ;
+    
+    @Scheduled(fixedRate = 10000)
+    public void checkFlightData() {
+    	if(skipFirst) {
+    		skipFirst = false;
+    		return;
+    	}
+    	
+    	String sqlSelect = "SELECT last_dv, total_ac FROM flight_data WHERE id = 1";
+    	List<FlightData> listFlightData = jdbcTemplate.query( sqlSelect, new RowMapper<FlightData>() { 
+    	
+    		public FlightData mapRow(ResultSet result, int rowNum) throws SQLException {
+    			FlightData bean = new FlightData();
+    			
+    			bean.setLastDv(result.getLong("last_dv"));
+    			bean.setTotalAc(result.getInt("total_ac"));
+    			return bean;
+    		}
+    	});
+    	
+    	FlightData data = listFlightData.get(0) ;
+    	log.info(String.format("Flight data status: last_dv=%d, total_ac=%d", data.getLastDv(), data.getTotalAc()));
+    }
+    
     @Scheduled(fixedRate = 20000)
     public void retrieveFlightData() {
     	HttpHeaders headers = new HttpHeaders();
@@ -50,8 +82,17 @@ public class ScheduledTasks {
     	
     	log.info(String.format("requestUrl=\"%s\"", requestUrl));
     	FlightData flightData = restTemplate.exchange(requestUrl, HttpMethod.GET,entity,FlightData.class).getBody();
-    	log.info(flightData.toString());
+    	
     	log.info(String.format("%d aircraft found", flightData.getAcList().size()));
+    	log.info(String.format("total_ac = %d", flightData.getTotalAc()));
+    	String sqlUpdate = "UPDATE flight_data SET" +
+    			" last_dv = " + flightData.getLastDv() +
+    			",total_ac = " + flightData.getTotalAc() +
+    			" WHERE id = 1;" ;
+    	log.info("Updating table with \"" + sqlUpdate + "\"" );
+    	jdbcTemplate.execute(sqlUpdate);
+    	log.info("Updated table...");
+    	//log.info(flightData.toString());
     	
     	ldv = flightData.getLastDv() ;
 	}
