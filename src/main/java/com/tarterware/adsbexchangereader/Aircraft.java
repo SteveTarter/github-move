@@ -39,6 +39,8 @@ public class Aircraft {
 	private Boolean trkH;
 	@JsonProperty("Type")
 	private String type;
+	@JsonProperty("Cou")
+	private String cou;
 	@JsonProperty("Mdl")
 	private String mdl;
 	@JsonProperty("Op")
@@ -183,6 +185,14 @@ public class Aircraft {
 		this.type = type;
 	}
 
+	public String getCou() {
+		return cou;
+	}
+
+	public void setCou(String cou) {
+		this.cou = cou;
+	}
+
 	public String getMdl() {
 		return mdl;
 	}
@@ -219,6 +229,7 @@ public class Aircraft {
 				", Trak=" + trak +
 				", TrkH=" + trkH +
 				", Type=" + type +
+				", Cou=" + cou +
 				", Mdl=" + mdl +
 				", Op=" + op +
 				"}\n";

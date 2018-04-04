@@ -36,10 +36,17 @@ public class Application implements CommandLineRunner
     	log.info("Creating tables");
     	
     	jdbcTemplate.execute("DROP TABLE flight_data IF EXISTS");
+    	jdbcTemplate.execute("DROP TABLE aircraft IF EXISTS");
     	jdbcTemplate.execute("CREATE TABLE flight_data(" +
     			"id INTEGER , " +
     			"last_dv NUMBER, " +
     			"total_ac NUMBER)");
+    	jdbcTemplate.execute("CREATE TABLE aircraft(" +
+    			"icao VARCHAR(6), " +
+    			"cou VARCHAR(100), " +
+    			"lat NUMBER, " +
+    			"lon NUMBER, " +
+    			"alt NUMBER)");
     	jdbcTemplate.execute("INSERT INTO flight_data(id,last_dv,total_ac) VALUES (1,0,0)");
     }
 }

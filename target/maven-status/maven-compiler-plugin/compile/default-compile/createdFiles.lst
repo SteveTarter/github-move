@@ -1,5 +1,9 @@
-com/tarterware/adsbexchangereader/Feed.class
-com/tarterware/adsbexchangereader/Application.class
 com/tarterware/adsbexchangereader/ScheduledTasks.class
 com/tarterware/adsbexchangereader/FlightData.class
+com/tarterware/adsbexchangereader/ScheduledTasks$2.class
+com/tarterware/adsbexchangereader/FlightDataBean.class
+com/tarterware/adsbexchangereader/Feed.class
+com/tarterware/adsbexchangereader/Application.class
+com/tarterware/adsbexchangereader/ScheduledTasks$1.class
+com/tarterware/adsbexchangereader/ScheduledTasks$3.class
 com/tarterware/adsbexchangereader/Aircraft.class

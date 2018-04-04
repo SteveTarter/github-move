@@ -5,6 +5,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.h2.jdbc.JdbcSQLException;
+import org.h2.message.DbException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +16,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -64,6 +67,40 @@ public class ScheduledTasks {
     	
     	FlightData data = listFlightData.get(0) ;
     	log.info(String.format("Flight data status: last_dv=%d, total_ac=%d", data.getLastDv(), data.getTotalAc()));
+    	
+    	sqlSelect = "SELECT DISTINCT cou FROM aircraft ORDER BY cou";
+    	List<String> countries = jdbcTemplate.query( sqlSelect, new RowMapper<String>() { 
+    	
+    		public String mapRow(ResultSet result, int rowNum) throws SQLException {
+    			
+    			return result.getString("cou");
+    		}
+    	});
+    	log.info(String.format("%d countries found", countries.size()));
+    	for(int n = 0; n < countries.size();  ++n) {
+    		log.info(countries.get(n));
+    	}
+    	/*
+    	sqlSelect = "SELECT * FROM aircraft ORDER BY icao" ;
+    	List<Aircraft> listAircraft = jdbcTemplate.query( sqlSelect, new RowMapper<Aircraft>() { 
+        	
+    		public Aircraft mapRow(ResultSet result, int rowNum) throws SQLException {
+    			Aircraft bean = new Aircraft();
+    			
+    			bean.setIcao(result.getString("icao"));
+    			bean.setCou(result.getString("cou"));
+    			bean.setLat(result.getFloat("lat"));
+    			bean.setLon(result.getFloat("lon"));
+    			bean.setAlt(result.getInt("alt"));
+    			return bean;
+    		}
+    	});
+    	
+    	log.info(String.format("%d aircraft retrieved", listAircraft.size()));
+    	for( int n = 0 ;  n < listAircraft.size();  ++n) {
+    		log.info(listAircraft.get(n).toString());
+    	}
+    	*/
     }
     
     @Scheduled(fixedRate = 20000)
@@ -94,6 +131,56 @@ public class ScheduledTasks {
     	log.info("Updated table...");
     	//log.info(flightData.toString());
     	
+    	for(int n = 0 ;  n < flightData.getAcList().size();  ++n)
+    	{
+    		updateAircraft( flightData.getAcList().get(n)) ;
+    	}
     	ldv = flightData.getLastDv() ;
 	}
+    
+    public void updateAircraft(Aircraft aircraft) {
+    	String sqlSelect = "SELECT alt FROM aircraft WHERE icao = '" + aircraft.getIcao() + "'";
+    	List<Aircraft> listAircraft = jdbcTemplate.query( sqlSelect, new RowMapper<Aircraft>() { 
+        
+    		public Aircraft mapRow(ResultSet result, int rowNum) throws SQLException {
+    			Aircraft bean = new Aircraft();
+    			
+    			bean.setAlt(result.getInt("alt"));
+    			return bean;
+    		}
+    	});
+
+    	if(listAircraft.isEmpty()) {
+    		String sqlInsert = "INSERT INTO aircraft(icao,cou,lat,lon,alt) VALUES(?,?,?,?,?)";
+    		Object[] values = new Object[5];
+    		values[0] = aircraft.getIcao();
+    		values[1] = aircraft.getCou();
+    		values[2] = aircraft.getLat();
+    		values[3] = aircraft.getLon();
+    		values[4] = aircraft.getAlt();
+    		int[] types = new int[5];
+    		types[0] = java.sql.Types.VARCHAR;
+    		types[1] = java.sql.Types.VARCHAR;
+    		types[2] = java.sql.Types.FLOAT;
+    		types[3] = java.sql.Types.FLOAT;
+    		types[4] = java.sql.Types.FLOAT;
+    		jdbcTemplate.update(sqlInsert,values,types);
+    	}
+    	else {
+    		String sqlUpdate = "UPDATE aircraft SET cou = ?, lat = ?, lon = ?, alt = ? WHERE icao = ?;";
+    		Object[] values = new Object[5];
+    		values[0] = aircraft.getCou();
+    		values[1] = aircraft.getLat();
+    		values[2] = aircraft.getLon();
+    		values[3] = aircraft.getAlt();
+    		values[4] = aircraft.getIcao();
+    		int[] types = new int[5];
+    		types[0] = java.sql.Types.VARCHAR;
+    		types[1] = java.sql.Types.FLOAT;
+    		types[2] = java.sql.Types.FLOAT;
+    		types[3] = java.sql.Types.FLOAT;
+    		types[4] = java.sql.Types.VARCHAR;
+    		jdbcTemplate.update(sqlUpdate,values,types);
+    	}
+    }
 }
