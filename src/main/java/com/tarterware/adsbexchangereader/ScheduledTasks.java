@@ -5,8 +5,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.h2.jdbc.JdbcSQLException;
-import org.h2.message.DbException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +14,6 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -44,6 +41,7 @@ public class ScheduledTasks {
     @Autowired
     JdbcTemplate jdbcTemplate;
     
+    /*
     private boolean skipFirst = true ;
     
     @Scheduled(fixedRate = 10000)
@@ -80,28 +78,8 @@ public class ScheduledTasks {
     	for(int n = 0; n < countries.size();  ++n) {
     		log.info(countries.get(n));
     	}
-    	/*
-    	sqlSelect = "SELECT * FROM aircraft ORDER BY icao" ;
-    	List<Aircraft> listAircraft = jdbcTemplate.query( sqlSelect, new RowMapper<Aircraft>() { 
-        	
-    		public Aircraft mapRow(ResultSet result, int rowNum) throws SQLException {
-    			Aircraft bean = new Aircraft();
-    			
-    			bean.setIcao(result.getString("icao"));
-    			bean.setCou(result.getString("cou"));
-    			bean.setLat(result.getFloat("lat"));
-    			bean.setLon(result.getFloat("lon"));
-    			bean.setAlt(result.getInt("alt"));
-    			return bean;
-    		}
-    	});
-    	
-    	log.info(String.format("%d aircraft retrieved", listAircraft.size()));
-    	for( int n = 0 ;  n < listAircraft.size();  ++n) {
-    		log.info(listAircraft.get(n).toString());
-    	}
-    	*/
     }
+    */
     
     @Scheduled(fixedRate = 20000)
     public void retrieveFlightData() {
@@ -139,6 +117,7 @@ public class ScheduledTasks {
 	}
     
     public void updateAircraft(Aircraft aircraft) {
+    	// Determine if aircraft DB record exists for this icao
     	String sqlSelect = "SELECT alt FROM aircraft WHERE icao = '" + aircraft.getIcao() + "'";
     	List<Aircraft> listAircraft = jdbcTemplate.query( sqlSelect, new RowMapper<Aircraft>() { 
         
@@ -150,6 +129,7 @@ public class ScheduledTasks {
     		}
     	});
 
+    	// Doesn't exist - insert into table
     	if(listAircraft.isEmpty()) {
     		String sqlInsert = "INSERT INTO aircraft(icao,cou,lat,lon,alt) VALUES(?,?,?,?,?)";
     		Object[] values = new Object[5];
@@ -166,6 +146,7 @@ public class ScheduledTasks {
     		types[4] = java.sql.Types.FLOAT;
     		jdbcTemplate.update(sqlInsert,values,types);
     	}
+    	// Existed - update table
     	else {
     		String sqlUpdate = "UPDATE aircraft SET cou = ?, lat = ?, lon = ?, alt = ? WHERE icao = ?;";
     		Object[] values = new Object[5];

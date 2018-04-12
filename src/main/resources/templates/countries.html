@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>ADSBExchange Countries List</title>
+</head>
+<body>
+    <p>There are <span th:text="${countriesModel.list.size()}">0</span> countries in flight</p>
+	<ul>
+		<li th:each="item : ${countriesModel.list}" th:text="${item}">Item description here...</li>
+	</ul>
+</body>
+</html>
